@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Siswa</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="mb-4">Data Siswa</h2>
+        <button class="btn btn-primary mb-3" onclick="showForm()">Tambah Data</button>
+        <div id="form-container" class="mb-4" style="display: none;">
+            <div class="card p-4">
+                <h5>Form Tambah Data</h5>
+                <div class="mb-3">
+                    <label for="nama" class="form-label">Nama Lengkap</label>
+                    <input type="text" class="form-control" id="nama">
+                </div>
+                <div class="mb-3">
+                    <label for="kelas" class="form-label">Kelas</label>
+                    <input type="text" class="form-control" id="kelas">
+                </div>
+                <div class="mb-3">
+                    <label for="jurusan" class="form-label">Jurusan</label>
+                    <input type="text" class="form-control" id="jurusan">
+                </div>
+                <button class="btn btn-success" onclick="submitData()">Kirim</button>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nama Lengkap</th>
+                        <th>Kelas</th>
+                        <th>Jurusan</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="data-siswa">
+                    <!-- Data akan dimasukkan di sini -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function showForm() {
+            document.getElementById('form-container').style.display = 'block';
+        }
+
+        function submitData() {
+            let nama = document.getElementById('nama').value;
+            let kelas = document.getElementById('kelas').value;
+            let jurusan = document.getElementById('jurusan').value;
+            
+            fetch('api.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `nama_lengkap=${nama}&kelas=${kelas}&jurusan=${jurusan}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data[0].status);
+                location.reload();
+            })
+            .catch(error => console.error('Gagal mengirim data:', error));
+        }
+
+        function editData(id) {
+            window.location.href = `edit.html?id=${id}`;
+        }
+
+        function deleteData(id) {
+            if (confirm('Apakah Anda yakin ingin menghapus data ini?')) {
+                fetch(`api.php?id=${id}`, {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data[0].status);
+                    location.reload();
+                })
+                .catch(error => console.error('Gagal menghapus data:', error));
+            }
+        }
+
+        fetch('api.php')
+            .then(response => response.json())
+            .then(data => {
+                let rows = '';
+                data.forEach(siswa => {
+                    rows += `<tr>
+                        <td>${siswa.id}</td>
+                        <td>${siswa.nama_lengkap}</td>
+                        <td>${siswa.kelas}</td>
+                        <td>${siswa.jurusan}</td>
+                        <td>
+                            <button class='btn btn-warning me-2' onclick='editData(${siswa.id})'>Edit</button>
+                            <button class='btn btn-danger' onclick='deleteData(${siswa.id})'>Hapus</button>
+                        </td>
+                    </tr>`;
+                });
+                document.getElementById('data-siswa').innerHTML = rows;
+            })
+            .catch(error => console.error('Gagal mengambil data:', error));
+    </script>
+</body>
+</html>
