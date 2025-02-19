@@ -1,7 +1,7 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
 
-$koneksi = mysqli_connect("localhost","root","","absen_db");
+$koneksi = mysqli_connect("localhost","admin","ardi1212","sekolah");
 
 if (mysqli_connect_errno()) {
     die("Koneksi database gagal: " . mysqli_connect_error());
